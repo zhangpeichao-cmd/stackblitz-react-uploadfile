@@ -13,7 +13,7 @@ const CHUNK_SIZE = 100 * 1024;
 export const getFileChunkList = (file: File) => {
   const fileSize = file.size;
   const length = Math.ceil(fileSize / CHUNK_SIZE);
-  return new Array(length).fill('').map((_, index) => {
+  return new Array(length).fill("").map((_, index) => {
     const start = index * CHUNK_SIZE;
     return file.slice(start, start + CHUNK_SIZE);
   });
@@ -27,28 +27,28 @@ export const simpleRequest = ({
   method = "POST",
   data,
   headers,
-  onprogress
+  onprogress,
 }: SimpleRequestParams) => {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open(method, url);
-    headers && Object.keys(headers).forEach(key =>
-      xhr.setRequestHeader(key, headers[key])
-    );
-    xhr.send(data);
+    headers &&
+      Object.keys(headers).forEach((key) =>
+        xhr.setRequestHeader(key, headers[key])
+      );
     xhr.onload = resolve;
     xhr.onerror = reject;
-    onprogress && (xhr.onprogress = ev => {
-      onprogress(ev.loaded)
-    })
+    xhr.upload.addEventListener("progress", ({ loaded, total }) => {
+      onprogress?.({ loaded, total });
+    });
+    xhr.send(data);
   });
-}
-
+};
 
 interface SimpleRequestParams {
   url: string;
-  method?: "POST",
-  data?: XMLHttpRequestBodyInit,
-  headers?: { [key: string]: string }
-  onprogress?: (ev: number) => void
+  method?: "POST";
+  data?: XMLHttpRequestBodyInit;
+  headers?: { [key: string]: string };
+  onprogress?: (ev: { loaded: number; total: number }) => void;
 }
