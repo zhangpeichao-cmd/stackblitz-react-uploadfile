@@ -18,3 +18,37 @@ export const getFileChunkList = (file: File) => {
     return file.slice(start, start + CHUNK_SIZE);
   });
 };
+
+/**
+ * 简易ajax
+ */
+export const simpleRequest = ({
+  url,
+  method = "POST",
+  data,
+  headers,
+  onprogress
+}: SimpleRequestParams) => {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open(method, url);
+    headers && Object.keys(headers).forEach(key =>
+      xhr.setRequestHeader(key, headers[key])
+    );
+    xhr.send(data);
+    xhr.onload = resolve;
+    xhr.onerror = reject;
+    onprogress && (xhr.onprogress = ev => {
+      onprogress(ev.loaded)
+    })
+  });
+}
+
+
+interface SimpleRequestParams {
+  url: string;
+  method?: "POST",
+  data?: XMLHttpRequestBodyInit,
+  headers?: { [key: string]: string }
+  onprogress?: (ev: number) => void
+}
